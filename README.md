@@ -11,13 +11,29 @@
 
 ## Recursos de Spring
 
-Dependencias necesarias en `pom.xml`:
+Dependencias instaladas en `pom.xml`:
 
-- `spring-boot-starter-web`: crea la API REST.
+### Producción
+
+- `spring-boot-h2console`: habilita la consola web de H2 para consultar la base de datos.
+- `spring-boot-starter-actuator`: añade endpoints de monitorización y salud del servicio.
 - `spring-boot-starter-data-jpa`: permite acceder a la base de datos mediante JPA.
-- `spring-boot-starter-validation`: valida los datos recibidos.
-- Driver de la base de datos: H2.
-- `spring-boot-starter-test`: permite realizar tests.
+- `spring-boot-starter-validation`: valida los datos recibidos en controladores y DTOs.
+- `spring-boot-starter-webmvc`: crea la API REST con Spring MVC.
+- `spring-boot-devtools`: facilita el desarrollo con recarga automática.
+- `spring-boot-docker-compose`: integra Docker Compose con la aplicación en entorno de desarrollo.
+- `com.h2database:h2`: base de datos en memoria para pruebas y desarrollo local.
+- `com.mysql:mysql-connector-j`: driver para conectar con MySQL.
+
+### Test
+
+- `spring-boot-starter-actuator-test`: utilidades de test para Actuator.
+- `spring-boot-starter-data-jpa-test`: soporte para pruebas con JPA.
+- `spring-boot-starter-validation-test`: soporte para pruebas de validación.
+- `spring-boot-starter-webmvc-test`: pruebas del controlador y MVC.
+- `spring-boot-testcontainers`: integración con Testcontainers para pruebas de contenedores.
+- `org.testcontainers:testcontainers-junit-jupiter`: soporte de JUnit Jupiter con Testcontainers.
+- `org.testcontainers:testcontainers-mysql`: contenedor MySQL para pruebas.
 
 ## Anotaciones
 
