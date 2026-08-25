@@ -59,16 +59,16 @@ Dependencias necesarias en `pom.xml`:
 src/
 └── main/
     └── java/
-        └── com.example.proyecto/
-            ├── Config/        // Configuración de la aplicación y de Spring
-            ├── View/          // Gestiona la presentación de los datos al usuario
-            ├── Controller/    // Gestiona las peticiones HTTP y coordina el flujo
-            ├── Service/       // Contiene la lógica de negocio
-            ├── Repository/    // Accede a la base de datos mediante JPA
-            ├── Mapper/        // Conversion entre Entity, DTO y View
-            ├── DTO/           // Transporta y prepara los datos entre capas
-            ├── Entity/        // Representa las tablas y datos de la base de datos
-            └── Exceptions/    // Define y gestiona los errores de la aplicación
+        └── ruben.dev.api_movies/
+            ├── config/        // Configuración de la aplicación y de Spring
+            ├── view/          // Gestiona la presentación de los datos al usuario
+            ├── controller/    // Gestiona las peticiones HTTP y coordina el flujo
+            ├── service/       // Contiene la lógica de negocio
+            ├── repository/    // Accede a la base de datos mediante JPA
+            ├── mapper/        // Conversion entre Entity, DTO y View
+            ├── dtos/           // Transporta y prepara los datos entre capas
+            ├── entity/        // Representa las tablas y datos de la base de datos
+            └── exception/    // Define y gestiona los errores de la aplicación
 ```
 
 ## Base de datos
@@ -90,8 +90,7 @@ por lo que se utilizará una tabla intermedia llamada `pelicula_actor`.
 
 - `id`: clave primaria.
 - `titulo`.
-- `descripcion`.
-- `imagen`.
+- `descripcion`.    
 - `fecha_lanzamiento`.
 
 ### Género
@@ -109,10 +108,10 @@ por lo que se utilizará una tabla intermedia llamada `pelicula_actor`.
 - `pelicula_id`: clave primaria y clave foránea.
 - `genero_id`: clave primaria y clave foránea.
 
-### Tabla intermedia `pelicula_actor`
+### Tabla intermedia `actor_pelicula`
 
-- `pelicula_id`: clave primaria y clave foránea.
 - `actor_id`: clave primaria y clave foránea.
+- `pelicula_id`: clave primaria y clave foránea.
 
 En ambas tablas intermedias se utilizará una clave primaria compuesta
 formada por las dos claves foráneas. Esto evita que una misma relación
