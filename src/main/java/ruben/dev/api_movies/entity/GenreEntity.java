@@ -14,8 +14,7 @@ private long id_genre;
 private String name;
 
 
-public class Genreentity {
-
+public GenreEntity() {
 }
 
 public GenreEntity(Long id, String name) {
