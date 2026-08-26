@@ -117,3 +117,13 @@ En ambas tablas intermedias se utilizará una clave primaria compuesta
 formada por las dos claves foráneas. Esto evita que una misma relación
 entre una película y un género, o entre una película y un actor,
 pueda registrarse más de una vez.
+
+
+## Resolución
+
+Empecé configurando los .properties para la DB y creando la estructura de trabajo especificada en [Estructura-de-proyecto]. Acto seguido modifique compose.yaml para el docker environment con la DB.
+
+Creé las entities:
+- Films
+- Genre
+- Actors
