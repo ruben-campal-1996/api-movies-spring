@@ -190,13 +190,13 @@ PELICULA N:N ACTOR
 Tablas intermedias:
 
 ```text id="v5c1ns"
-pelicula_genero
-- pelicula_id
-- genero_id
+genero_pelicula
+- id_pelicula
+- id_genero
 
 actor_pelicula
-- actor_id
-- pelicula_id
+- id_actor
+- id_pelicula
 ```
 
 Ambas utilizan una **clave primaria compuesta por las dos claves foráneas**.

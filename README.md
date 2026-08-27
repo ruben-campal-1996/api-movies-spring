@@ -97,10 +97,10 @@ He razonado 5 tablas:
 - Un actor puede participar en muchas películas.
 
 La relación entre PELICULA y GENERO es N:N,
-por lo que se utilizará una tabla intermedia llamada `pelicula_genero`.
+por lo que se utilizará una tabla intermedia llamada `genero_pelicula`.
 
 La relación entre PELICULA y ACTOR es N:N,
-por lo que se utilizará una tabla intermedia llamada `pelicula_actor`.
+por lo que se utilizará una tabla intermedia llamada `actor_pelicula`.
 
 ### Película
 
@@ -119,15 +119,15 @@ por lo que se utilizará una tabla intermedia llamada `pelicula_actor`.
 - `id`: clave primaria.
 - `nombre`.
 
-### Tabla intermedia `pelicula_genero`
+### Tabla intermedia `genero_pelicula`
 
-- `pelicula_id`: clave primaria y clave foránea.
-- `genero_id`: clave primaria y clave foránea.
+- `id_genero`: clave primaria y clave foránea.
+- `id_pelicula`: clave primaria y clave foránea.
 
 ### Tabla intermedia `actor_pelicula`
 
-- `actor_id`: clave primaria y clave foránea.
-- `pelicula_id`: clave primaria y clave foránea.
+- `id_actor`: clave primaria y clave foránea.
+- `id_pelicula`: clave primaria y clave foránea.
 
 En ambas tablas intermedias se utilizará una clave primaria compuesta
 formada por las dos claves foráneas. Esto evita que una misma relación

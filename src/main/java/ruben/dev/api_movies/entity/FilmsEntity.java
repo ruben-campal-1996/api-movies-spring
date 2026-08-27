@@ -1,11 +1,16 @@
 package ruben.dev.api_movies.entity;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,6 +23,34 @@ public class FilmsEntity {
     private String name;
     private String description;
     private LocalDate date;
+
+    @ManyToMany
+    @JoinTable(
+        name = "genero_pelicula",
+        joinColumns = @JoinColumn(
+            name = "id_pelicula",
+            referencedColumnName = "id_film"
+        ),
+        inverseJoinColumns = @JoinColumn(
+            name = "id_genero",
+            referencedColumnName = "id_genre"
+        )
+    )
+    private Set<GenreEntity> genres = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "actor_pelicula",
+        joinColumns = @JoinColumn(
+            name = "id_pelicula",
+            referencedColumnName = "id_film"
+        ),
+        inverseJoinColumns = @JoinColumn(
+            name = "id_actor",
+            referencedColumnName = "id_actor"
+        )
+    )
+    private Set<ActorsEntity> actors = new HashSet<>();
 
     public FilmsEntity(){
 
@@ -44,6 +77,14 @@ public class FilmsEntity {
 
     public LocalDate getDate() {
         return date;
+    }
+
+    public Set<GenreEntity> getGenres() {
+        return genres;
+    }
+
+    public Set<ActorsEntity> getActors() {
+        return actors;
     }
 
     
