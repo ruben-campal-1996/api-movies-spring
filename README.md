@@ -183,3 +183,8 @@ Si el proyecto no se cierra correctamente y deja el puerto ocupado, se puede eje
 netstat -ano | findstr :8080
 MSYS_NO_PATHCONV=1 taskkill /PID 123456 /F //123456 = código del proceso que lo mantiene activo
 ```
+
+Configuré `FilmsRepository` extendiéndolo de `JpaRepository<FilmsEntity, Long>`. De este modo, relacionamos el repository con la entidad `FilmsEntity` y con el tipo de su identificador (`Long`). Spring Data JPA genera automáticamente su implementación y proporciona las operaciones CRUD, por lo que no necesitamos escribirlas manualmente. **NOTA**: No hace falta añadir `@Repository`, porque `JpaRepository` ya se registra automáticamente como bean singleton.
+
+Configuré `FilmsService` como un bean mediante `@Service`. Recibe `FilmsRepository` por inyección de dependencias mediante el constructor, manteniendo la dependencia en un campo `final`. Sus métodos delegan en el repository las operaciones sobre las películas y actúan como capa intermedia entre el futuro controlador y la base de datos.
+
