@@ -32,8 +32,36 @@ Dependencias instaladas en `pom.xml`:
 - `spring-boot-starter-validation-test`: soporte para pruebas de validación.
 - `spring-boot-starter-webmvc-test`: pruebas del controlador y MVC.
 - `spring-boot-testcontainers`: integración con Testcontainers para pruebas de contenedores.
-- `org.testcontainers:testcontainers-junit-jupiter`: soporte de JUnit Jupiter con Testcontainers.
+- `org.testcontainers:testcontainers-junit-jupiter`: soporte para JUnit Jupiter con Testcontainers.
 - `org.testcontainers:testcontainers-mysql`: contenedor MySQL para pruebas.
+
+### Inyección de dependencias
+
+Spring crea automáticamente los objetos gestionados como beans y resuelve sus dependencias. No es necesario instanciar manualmente los constructores desde `AppContainer`.
+
+Se recomienda utilizar inyección por constructor:
+
+```java
+@Service
+public class FilmsService {
+
+    private final FilmsRepository filmsRepository;
+
+    public FilmsService(FilmsRepository filmsRepository) {
+        this.filmsRepository = filmsRepository;
+    }
+}
+```
+
+`AppContainer` configura el contexto de Spring Boot y escanea los componentes del proyecto:
+
+```java
+@SpringBootApplication(scanBasePackages = "ruben.dev.api_movies")
+public class AppContainer {
+}
+```
+
+La clase `AppContainer` no debe crear manualmente los servicios, repositorios ni controladores. Solo se utiliza `@Bean` cuando sea necesario registrar explícitamente un objeto que Spring no pueda detectar automáticamente, como una configuración de una librería externa.
 
 ## Anotaciones
 
@@ -81,32 +109,30 @@ src/
             ├── controller/    // Gestiona las peticiones HTTP y coordina el flujo
             ├── service/       // Contiene la lógica de negocio
             ├── repository/    // Accede a la base de datos mediante JPA
-            ├── mapper/        // Conversion entre Entity, DTO y View
-            ├── dtos/           // Transporta y prepara los datos entre capas
+            ├── mapper/        // Conversión entre Entity, DTO y View
+            ├── dtos/          // Transporta y prepara los datos entre capas
             ├── entity/        // Representa las tablas y datos de la base de datos
-            └── exception/    // Define y gestiona los errores de la aplicación
+            └── exception/     // Define y gestiona los errores de la aplicación
 ```
 
 ## Base de datos
 
-He razonado 5 tablas:
+He razonado cinco tablas:
 
 - Un género puede tener muchas películas.
 - Una película puede tener varios géneros.
 - Una película puede tener muchos actores.
 - Un actor puede participar en muchas películas.
 
-La relación entre PELICULA y GENERO es N:N,
-por lo que se utilizará una tabla intermedia llamada `genero_pelicula`.
+La relación entre `PELICULA` y `GENERO` es N:N, por lo que se utilizará una tabla intermedia llamada `genero_pelicula`.
 
-La relación entre PELICULA y ACTOR es N:N,
-por lo que se utilizará una tabla intermedia llamada `actor_pelicula`.
+La relación entre `PELICULA` y `ACTOR` es N:N, por lo que se utilizará una tabla intermedia llamada `actor_pelicula`.
 
 ### Película
 
 - `id`: clave primaria.
 - `titulo`.
-- `descripcion`.    
+- `descripcion`.
 - `fecha_lanzamiento`.
 
 ### Género
@@ -129,17 +155,31 @@ por lo que se utilizará una tabla intermedia llamada `actor_pelicula`.
 - `id_actor`: clave primaria y clave foránea.
 - `id_pelicula`: clave primaria y clave foránea.
 
-En ambas tablas intermedias se utilizará una clave primaria compuesta
-formada por las dos claves foráneas. Esto evita que una misma relación
-entre una película y un género, o entre una película y un actor,
-pueda registrarse más de una vez.
-
+En ambas tablas intermedias se utilizará una clave primaria compuesta formada por las dos claves foráneas. Esto evita que una misma relación entre una película y un género, o entre una película y un actor, pueda registrarse más de una vez.
 
 ## Resolución
 
-Empecé configurando los .properties para la DB y creando la estructura de trabajo especificada en [Estructura-de-proyecto]. Acto seguido modifique compose.yaml para el docker environment con la DB.
+### Configuración inicial
 
-Creé las entities:
-- Films
-- Genre
-- Actors
+Empecé configurando los archivos `.properties` para la base de datos y creando la estructura de trabajo especificada en [Estructura del proyecto]. Acto seguido, modifiqué `compose.yaml` para el entorno Docker con la base de datos.
+
+### Entidades
+
+Creé las entidades:
+
+- `Films`
+- `Genre`
+- `Actors`
+
+### Variables de entorno
+
+Configuré las variables de entorno desde `Run > Add Configuration > env`.
+
+### Liberar el puerto
+
+Si el proyecto no se cierra correctamente y deja el puerto ocupado, se puede ejecutar en Git Bash:
+
+```bash
+netstat -ano | findstr :8080
+MSYS_NO_PATHCONV=1 taskkill /PID 123456 /F //123456 = código del proceso que lo mantiene activo
+```
