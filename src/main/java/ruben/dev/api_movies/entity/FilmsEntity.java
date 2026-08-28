@@ -1,6 +1,5 @@
 package ruben.dev.api_movies.entity;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -22,7 +22,10 @@ public class FilmsEntity {
     private Long id_film;
     private String name;
     private String description;
-    private LocalDate date;
+
+    @ManyToOne
+    @JoinColumn(name = "id_year", referencedColumnName = "id_year")
+    private YearsEntity year;
 
     @ManyToMany
     @JoinTable(
@@ -56,11 +59,11 @@ public class FilmsEntity {
 
     }
 
-    public FilmsEntity(Long id, String name, String description, LocalDate date) {
+    public FilmsEntity(Long id, String name, String description, YearsEntity year) {
         this.id_film = id;
         this.name = name;
         this.description = description;
-        this.date = date;
+        this.year = year;
     }
 
     public Long getId() {
@@ -75,8 +78,8 @@ public class FilmsEntity {
         return description;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public YearsEntity getYear() {
+        return year;
     }
 
     public Set<GenreEntity> getGenres() {
