@@ -3,6 +3,8 @@ package ruben.dev.api_movies.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +23,7 @@ public class YearsEntity {
     private Integer year;
 
     @OneToMany(mappedBy = "year")
+    @JsonIgnore
     private Set<FilmsEntity> films = new HashSet<>();
 
     public YearsEntity() {
