@@ -2,12 +2,16 @@
 
 ## Endpoints de la API
 
-- Obtener todas las películas.
-- Obtener una película por ID.
-- Añadir una película.
+- Obtener todas las películas: `GET /api/v1/movies`.
+- Obtener una película por ID: `GET /api/v1/movies/{id}`.
+- Añadir una película: `POST /api/v1/movies` con `@Valid` en `FilmsRequestDTO`.
 - Actualizar una película.
 - Eliminar una película.
 - Buscar una película por título o género *(opcional)*.
+
+### Diseño de la creación de películas
+
+La creación usa `FilmsRequestDTO` como frontera de entrada y `FilmsResponseDTO` como salida del controlador. La conversión se hace en `FilmsServiceImpl` con inyección por constructor sobre `FilmsRepository` y `FilmsMapper`, evitando exponer la entidad JPA directamente y manteniendo la validación de Spring en el controlador.
 
 ## Recursos de Spring
 

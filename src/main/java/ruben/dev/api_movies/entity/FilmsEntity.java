@@ -70,16 +70,32 @@ public class FilmsEntity {
         return id_film;
     }
 
+    public void setId(Long id_film) {
+        this.id_film = id_film;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public YearsEntity getYear() {
         return year;
+    }
+
+    public void setYear(YearsEntity year) {
+        this.year = year;
     }
 
     public Set<GenreEntity> getGenres() {

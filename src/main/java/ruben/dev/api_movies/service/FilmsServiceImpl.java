@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import ruben.dev.api_movies.dtos.FilmsRequestDTO;
 import ruben.dev.api_movies.dtos.FilmsResponseDTO;
+import ruben.dev.api_movies.entity.FilmsEntity;
+import ruben.dev.api_movies.entity.YearsEntity;
 import ruben.dev.api_movies.exception.ResourceNotFoundException;
 import ruben.dev.api_movies.mappers.FilmsMapper;
 import ruben.dev.api_movies.repository.FilmsRepository;
@@ -35,4 +38,14 @@ public class FilmsServiceImpl implements FilmsService {
             .orElseThrow(() -> new ResourceNotFoundException("Película no encontrada con id: " + id));
     }
 
+    @Override
+    public FilmsResponseDTO save(FilmsRequestDTO request) {
+        FilmsEntity film = new FilmsEntity();
+        film.setName(request.getName());
+        film.setDescription(request.getDescription());
+        film.setYear(new YearsEntity(null, request.getReleaseYear()));
+
+        FilmsEntity savedFilm = filmsRepository.save(film);
+        return filmsMapper.toResponseDto(savedFilm);
+    }
 }

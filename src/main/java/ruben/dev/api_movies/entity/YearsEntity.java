@@ -30,7 +30,9 @@ public class YearsEntity {
     }
 
     public YearsEntity(Long id, int year) {
-        this.id_year = id;
+        if (id != null) {
+            this.id_year = id;
+        }
         this.year = year;
     }
 
