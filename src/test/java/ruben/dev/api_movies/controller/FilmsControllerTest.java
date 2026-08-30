@@ -7,27 +7,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import ruben.dev.api_movies.dtos.FilmsResponseDTO;
 import ruben.dev.api_movies.exception.GlobalExceptionHandler;
 import ruben.dev.api_movies.exception.ResourceNotFoundException;
 import ruben.dev.api_movies.service.FilmsService;
 
-@WebMvcTest(FilmsController.class)
-@Import(GlobalExceptionHandler.class)
+@ExtendWith(MockitoExtension.class)
 class FilmsControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @Mock
     private FilmsService filmsService;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(new FilmsController(filmsService))
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .build();
+    }
 
     @Test
     void findAll_shouldReturnHttp200_whenMoviesExist() throws Exception {

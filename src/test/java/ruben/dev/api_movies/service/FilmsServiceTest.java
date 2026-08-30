@@ -37,7 +37,7 @@ class FilmsServiceTest {
         FilmsResponseDTO expected = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
 
         when(filmsRepository.findAll()).thenReturn(List.of(film));
-        when(filmsMapper.toResponseDto(film)).thenReturn(expected);
+        when(filmsMapper.toResponseDtoList(List.of(film))).thenReturn(List.of(expected));
 
         List<FilmsResponseDTO> result = filmsService.findAll();
 
@@ -49,6 +49,7 @@ class FilmsServiceTest {
     @Test
     void findAll_shouldThrowResourceNotFoundException_whenRepositoryIsEmpty() {
         when(filmsRepository.findAll()).thenReturn(List.of());
+        when(filmsMapper.toResponseDtoList(List.of())).thenReturn(List.of());
 
         assertThatThrownBy(() -> filmsService.findAll())
             .isInstanceOf(ResourceNotFoundException.class)
