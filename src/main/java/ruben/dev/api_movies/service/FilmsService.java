@@ -16,4 +16,6 @@ public interface FilmsService {
     FilmsResponseDTO update(Long id, FilmsRequestDTO request);
 
     List<FilmsResponseDTO> searchByTitleOrGenre(String title, String genre);
+
+    void deleteById(Long id);
 }

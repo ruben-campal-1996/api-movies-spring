@@ -2,6 +2,7 @@ package ruben.dev.api_movies.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import ruben.dev.api_movies.entity.YearsEntity;
 import ruben.dev.api_movies.exception.ResourceNotFoundException;
 import ruben.dev.api_movies.mappers.FilmsMapper;
 import ruben.dev.api_movies.repository.FilmsRepository;
+import ruben.dev.api_movies.repository.YearsRepository;
 
 @ExtendWith(MockitoExtension.class)
 class FilmsServiceTest {
@@ -29,6 +31,9 @@ class FilmsServiceTest {
 
     @Mock
     private FilmsMapper filmsMapper;
+
+    @Mock
+    private YearsRepository yearsRepository;
 
     @InjectMocks
     private FilmsServiceImpl filmsService;
@@ -89,9 +94,12 @@ class FilmsServiceTest {
         request.setDescription("Sueños");
         request.setReleaseYear(2010);
 
-        FilmsEntity savedFilm = new FilmsEntity(2L, "Inception", "Sueños", new YearsEntity(2L, 2010));
+        YearsEntity year = new YearsEntity(2L, 2010);
+        FilmsEntity savedFilm = new FilmsEntity(2L, "Inception", "Sueños", year);
         FilmsResponseDTO expected = new FilmsResponseDTO(2L, "Inception", "Sueños", 2010);
 
+        when(yearsRepository.findByYear(2010)).thenReturn(Optional.empty());
+        when(yearsRepository.save(org.mockito.ArgumentMatchers.any(YearsEntity.class))).thenReturn(year);
         when(filmsRepository.save(org.mockito.ArgumentMatchers.any(FilmsEntity.class))).thenReturn(savedFilm);
         when(filmsMapper.toResponseDto(savedFilm)).thenReturn(expected);
 
@@ -106,10 +114,13 @@ class FilmsServiceTest {
     void update_shouldReturnUpdatedMovie_whenMovieExists() {
         FilmsRequestDTO request = new FilmsRequestDTO("Inception", "Sueños", 2010);
         FilmsEntity existingFilm = new FilmsEntity(1L, "Matrix", "Ciencia ficción", new YearsEntity(1L, 1999));
-        FilmsEntity updatedFilm = new FilmsEntity(1L, "Inception", "Sueños", new YearsEntity(1L, 2010));
+        YearsEntity newYear = new YearsEntity(2L, 2010);
+        FilmsEntity updatedFilm = new FilmsEntity(1L, "Inception", "Sueños", newYear);
         FilmsResponseDTO expected = new FilmsResponseDTO(1L, "Inception", "Sueños", 2010);
 
         when(filmsRepository.findById(1L)).thenReturn(Optional.of(existingFilm));
+        when(yearsRepository.findByYear(2010)).thenReturn(Optional.empty());
+        when(yearsRepository.save(org.mockito.ArgumentMatchers.any(YearsEntity.class))).thenReturn(newYear);
         when(filmsRepository.save(existingFilm)).thenReturn(updatedFilm);
         when(filmsMapper.toResponseDto(updatedFilm)).thenReturn(expected);
 
@@ -167,5 +178,22 @@ class FilmsServiceTest {
         assertThatThrownBy(() -> filmsService.searchByTitleOrGenre("NoExiste", "NoExiste"))
             .isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("No se encontraron películas con ese criterio");
+    }
+    @Test
+    void deleteById_shouldDeleteFilm_whenIdExists() {
+        when(filmsRepository.existsById(1L)).thenReturn(true);
+
+        filmsService.deleteById(1L);
+
+        verify(filmsRepository).deleteById(1L);
+    }
+
+    @Test
+    void deleteById_shouldThrowResourceNotFoundException_whenIdDoesNotExist() {
+        when(filmsRepository.existsById(99L)).thenReturn(false);
+
+        assertThatThrownBy(() -> filmsService.deleteById(99L))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("Película no encontrada con id: 99");
     }
 }

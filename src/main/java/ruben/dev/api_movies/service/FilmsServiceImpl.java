@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ruben.dev.api_movies.dtos.FilmsRequestDTO;
 import ruben.dev.api_movies.dtos.FilmsResponseDTO;
@@ -14,15 +15,18 @@ import ruben.dev.api_movies.entity.YearsEntity;
 import ruben.dev.api_movies.exception.ResourceNotFoundException;
 import ruben.dev.api_movies.mappers.FilmsMapper;
 import ruben.dev.api_movies.repository.FilmsRepository;
+import ruben.dev.api_movies.repository.YearsRepository;
 
 @Service
 public class FilmsServiceImpl implements FilmsService {
     private final FilmsRepository filmsRepository;
     private final FilmsMapper filmsMapper;
+    private final YearsRepository yearsRepository;
 
-    public FilmsServiceImpl(FilmsRepository filmsRepository, FilmsMapper filmsMapper) {
+    public FilmsServiceImpl(FilmsRepository filmsRepository, FilmsMapper filmsMapper, YearsRepository yearsRepository) {
         this.filmsRepository = filmsRepository;
         this.filmsMapper = filmsMapper;
+        this.yearsRepository = yearsRepository;
     }
 
     @Override
@@ -42,24 +46,32 @@ public class FilmsServiceImpl implements FilmsService {
     }
 
     @Override
+    @Transactional
     public FilmsResponseDTO save(FilmsRequestDTO request) {
+        YearsEntity year = yearsRepository.findByYear(request.getReleaseYear())
+            .orElseGet(() -> yearsRepository.save(new YearsEntity(null, request.getReleaseYear())));
+
         FilmsEntity film = new FilmsEntity();
         film.setName(request.getName());
         film.setDescription(request.getDescription());
-        film.setYear(new YearsEntity(null, request.getReleaseYear()));
+        film.setYear(year);
 
         FilmsEntity savedFilm = filmsRepository.save(film);
         return filmsMapper.toResponseDto(savedFilm);
     }
 
     @Override
+    @Transactional
     public FilmsResponseDTO update(Long id, FilmsRequestDTO request) {
         FilmsEntity film = filmsRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Película no encontrada con id: " + id));
 
+        YearsEntity year = yearsRepository.findByYear(request.getReleaseYear())
+            .orElseGet(() -> yearsRepository.save(new YearsEntity(null, request.getReleaseYear())));
+
         film.setName(request.getName());
         film.setDescription(request.getDescription());
-        film.setYear(new YearsEntity(film.getYear() != null ? film.getYear().getId_year() : null, request.getReleaseYear()));
+        film.setYear(year);
 
         FilmsEntity updatedFilm = filmsRepository.save(film);
         return filmsMapper.toResponseDto(updatedFilm);
@@ -95,5 +107,14 @@ public class FilmsServiceImpl implements FilmsService {
         }
 
         return response;
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        if (!filmsRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Película no encontrada con id: " + id);
+        }
+        filmsRepository.deleteById(id);
     }
 }

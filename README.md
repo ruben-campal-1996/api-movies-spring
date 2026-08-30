@@ -6,12 +6,13 @@
 - Obtener una película por ID: `GET /api/v1/movies/{id}`.
 - Añadir una película: `POST /api/v1/movies` con `@Valid` en `FilmsRequestDTO`.
 - Actualizar una película: `PUT /api/v1/movies/{id}` con validación y manejo de 404.
-- Eliminar una película.
-- Buscar una película por título o género *(opcional)*.
+- Buscar una película por título o género: `GET /api/v1/movies/search?title=...` o `GET /api/v1/movies/search?genre=...`.
 
-### Diseño de la creación de películas
+### Diseño de la creación y actualización de películas
 
-La creación usa `FilmsRequestDTO` como frontera de entrada y `FilmsResponseDTO` como salida del controlador. La conversión se hace en `FilmsServiceImpl` con inyección por constructor sobre `FilmsRepository` y `FilmsMapper`, evitando exponer la entidad JPA directamente y manteniendo la validación de Spring en el controlador.
+La entrada de la API usa `FilmsRequestDTO` como frontera de entrada y `FilmsResponseDTO` como salida del controlador. La conversión entre entidad y DTO se resuelve con `FilmsMapper`, mientras la lógica de negocio queda en `FilmsServiceImpl`, que recibe por constructor `FilmsRepository`, `FilmsMapper` y `YearsRepository`.
+
+Este diseño evita exponer la entidad JPA directamente en la capa HTTP y mantiene la validación de Spring en el controlador. El servicio realiza la operación bajo una transacción para garantizar la consistencia de la película y su año asociado.
 
 ## Recursos de Spring
 
@@ -165,20 +166,22 @@ En ambas tablas intermedias se utilizará una clave primaria compuesta formada p
 
 ### Configuración inicial
 
-Empecé configurando los archivos `.properties` para la base de datos y creando la estructura de trabajo especificada en [Estructura del proyecto]. Acto seguido, modifiqué `compose.yaml` para el entorno Docker con la base de datos.
+Empecé configurando los archivos `.properties` para la base de datos y creando la estructura de trabajo especificada en la estructura del proyecto. Acto seguido, preparé la aplicación para trabajar con H2 en entorno local y con la base de datos relacional necesaria para las entidades y relaciones.
 
 ### Entidades
 
 Creé las entidades:
 
-- `Films`
-- `Genre`
-- `Actors`
-- `Years`
+- `FilmsEntity`
+- `GenreEntity`
+- `ActorsEntity`
+- `YearsEntity`
+
+La relación entre película y año se modela como `@ManyToOne`, donde cada película apunta a un año de lanzamiento. Ese vínculo se gestiona mediante `YearsRepository`, ya que la entidad `YearsEntity` necesita estar persistida y gestionada por JPA para evitar conflictos de integridad.
 
 ### Variables de entorno
 
-Configuré las variables de entorno desde `Run > Add Configuration > env`.
+Configuré las variables de entorno desde `Run > Add Configuration > env` para permitir la inicialización local con H2.
 
 ### Liberar el puerto
 
@@ -191,5 +194,25 @@ MSYS_NO_PATHCONV=1 taskkill /PID 123456 /F //123456 = código del proceso que lo
 
 Configuré `FilmsRepository` extendiéndolo de `JpaRepository<FilmsEntity, Long>`. De este modo, relacionamos el repository con la entidad `FilmsEntity` y con el tipo de su identificador (`Long`). Spring Data JPA genera automáticamente su implementación y proporciona las operaciones CRUD, por lo que no necesitamos escribirlas manualmente. **NOTA**: No hace falta añadir `@Repository`, porque `JpaRepository` ya se registra automáticamente como bean singleton.
 
-Configuré `FilmsService` como un bean mediante `@Service`. Recibe `FilmsRepository` por inyección de dependencias mediante el constructor, manteniendo la dependencia en un campo `final`. Sus métodos delegan en el repository las operaciones sobre las películas y actúan como capa intermedia entre el futuro controlador y la base de datos.
+Configuré `FilmsServiceImpl` como un bean mediante `@Service`. Recibe por constructor `FilmsRepository`, `FilmsMapper` y `YearsRepository`, manteniendo las dependencias en campos `final`. Sus métodos delegan en el repository las operaciones sobre las películas y se apoyan en `YearsRepository` para reutilizar o crear el `YearsEntity` asociado al año de estreno.
+
+### Solución al problema de persistencia con `YearsEntity`
+
+El problema principal surgió al persistir una película con su año de estreno. Si se construía una nueva entidad `YearsEntity` sin gestionarla desde el repositorio, Hibernate la trataba como una entidad detached y fallaba con errores del tipo:
+
+- `Detached entity passed to persist`
+- `Unique index or primary key violation` en `release_years`
+
+La solución final fue:
+
+```java
+YearsEntity year = yearsRepository.findByYear(request.getReleaseYear())
+    .orElseGet(() -> yearsRepository.save(new YearsEntity(null, request.getReleaseYear())));
+```
+
+De esta forma, el año queda siempre gestionado por JPA y no entra en conflicto con registros ya existentes. Además, las operaciones de escritura se ejecutan con `@Transactional` para garantizar la consistencia del conjunto película + año.
+
+### Búsqueda por título o género
+
+La búsqueda no reutiliza ninguna sobrecarga de métodos. Se mantiene un único método `searchByTitleOrGenre(String title, String genre)` y se construye la respuesta a partir de la combinación de resultados de `filmsRepository` con `findByNameContainingIgnoreCase` y `findByGenres_NameContainingIgnoreCase`. Si no hay coincidencias, el servicio lanza `ResourceNotFoundException` con el mensaje esperado por el controlador.
 

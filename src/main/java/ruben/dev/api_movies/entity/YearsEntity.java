@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 public class YearsEntity {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_year;
+    private Long id_year;
     @Column(name = "release_year")
     private Integer year;
 
@@ -36,7 +36,7 @@ public class YearsEntity {
         this.year = year;
     }
 
-    public long getId_year() {
+    public Long getId_year() {
         return id_year;
     }
 

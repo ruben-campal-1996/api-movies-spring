@@ -1,6 +1,9 @@
 package ruben.dev.api_movies.controller;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -159,5 +162,22 @@ class FilmsControllerTest {
                 .param("genre", "NoExiste"))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("No se encontraron películas con ese criterio"));
+    }
+    @Test
+    void deleteById_shouldReturnHttp204_whenMovieExists() throws Exception {
+        willDoNothing().given(filmsService).deleteById(1L);
+
+        mockMvc.perform(delete("/api/v1/movies/1"))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteById_shouldReturnHttp404_whenMovieDoesNotExist() throws Exception {
+        willThrow(new ResourceNotFoundException("Película no encontrada con id: 99"))
+            .given(filmsService).deleteById(99L);
+
+        mockMvc.perform(delete("/api/v1/movies/99"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Película no encontrada con id: 99"));
     }
 }
