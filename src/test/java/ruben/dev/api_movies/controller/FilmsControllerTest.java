@@ -126,4 +126,38 @@ class FilmsControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("Película no encontrada con id: 99"));
     }
+
+    @Test
+    void searchByTitleOrGenre_shouldReturnHttp200_whenTitleMatches() throws Exception {
+        FilmsResponseDTO response = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
+        given(filmsService.searchByTitleOrGenre("Matrix", null)).willReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/movies/search").param("title", "Matrix"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].name").value("Matrix"));
+    }
+
+    @Test
+    void searchByTitleOrGenre_shouldReturnHttp200_whenGenreMatches() throws Exception {
+        FilmsResponseDTO response = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
+        given(filmsService.searchByTitleOrGenre(null, "Ciencia")).willReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/movies/search").param("genre", "Ciencia"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].name").value("Matrix"));
+    }
+
+    @Test
+    void searchByTitleOrGenre_shouldReturnHttp404_whenNoMoviesMatch() throws Exception {
+        given(filmsService.searchByTitleOrGenre("NoExiste", "NoExiste"))
+            .willThrow(new ResourceNotFoundException("No se encontraron películas con ese criterio"));
+
+        mockMvc.perform(get("/api/v1/movies/search")
+                .param("title", "NoExiste")
+                .param("genre", "NoExiste"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("No se encontraron películas con ese criterio"));
+    }
 }

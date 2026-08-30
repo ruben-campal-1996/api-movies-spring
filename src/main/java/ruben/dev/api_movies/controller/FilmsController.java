@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -47,5 +48,12 @@ public class FilmsController {
     @PutMapping("/{id}")
     public FilmsResponseDTO update(@PathVariable Long id, @Valid @RequestBody FilmsRequestDTO request) {
         return filmsService.update(id, request);
+    }
+
+    @GetMapping("/search")
+    public List<FilmsResponseDTO> searchByTitleOrGenre(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String genre) {
+        return filmsService.searchByTitleOrGenre(title, genre);
     }
 }

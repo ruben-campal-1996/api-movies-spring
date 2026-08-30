@@ -1,6 +1,9 @@
 package ruben.dev.api_movies.service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -60,5 +63,37 @@ public class FilmsServiceImpl implements FilmsService {
 
         FilmsEntity updatedFilm = filmsRepository.save(film);
         return filmsMapper.toResponseDto(updatedFilm);
+    }
+
+    @Override
+    public List<FilmsResponseDTO> searchByTitleOrGenre(String title, String genre) {
+        List<FilmsEntity> results = new ArrayList<>();
+        Map<Long, FilmsEntity> uniqueResults = new LinkedHashMap<>();
+
+        if (title != null && !title.isBlank()) {
+            results.addAll(filmsRepository.findByNameContainingIgnoreCase(title.trim()));
+        }
+
+        if (genre != null && !genre.isBlank()) {
+            results.addAll(filmsRepository.findByGenres_NameContainingIgnoreCase(genre.trim()));
+        }
+
+        if (results.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron películas con ese criterio");
+        }
+
+        for (FilmsEntity film : results) {
+            uniqueResults.putIfAbsent(film.getId(), film);
+        }
+
+        List<FilmsResponseDTO> response = uniqueResults.values().stream()
+            .map(filmsMapper::toResponseDto)
+            .toList();
+
+        if (response.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron películas con ese criterio");
+        }
+
+        return response;
     }
 }

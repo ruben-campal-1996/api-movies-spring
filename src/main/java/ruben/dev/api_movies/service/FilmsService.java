@@ -14,4 +14,6 @@ public interface FilmsService {
     FilmsResponseDTO save(FilmsRequestDTO request);
 
     FilmsResponseDTO update(Long id, FilmsRequestDTO request);
+
+    List<FilmsResponseDTO> searchByTitleOrGenre(String title, String genre);
 }

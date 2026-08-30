@@ -130,4 +130,42 @@ class FilmsServiceTest {
             .isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("Película no encontrada con id: 99");
     }
+
+    @Test
+    void searchByTitleOrGenre_shouldReturnMovies_whenTitleMatches() {
+        FilmsEntity film = new FilmsEntity(1L, "Matrix", "Ciencia ficción", new YearsEntity(1L, 1999));
+        FilmsResponseDTO expected = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
+
+        when(filmsRepository.findByNameContainingIgnoreCase("Matrix")).thenReturn(List.of(film));
+        when(filmsMapper.toResponseDto(film)).thenReturn(expected);
+
+        List<FilmsResponseDTO> result = filmsService.searchByTitleOrGenre("Matrix", null);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getName()).isEqualTo("Matrix");
+    }
+
+    @Test
+    void searchByTitleOrGenre_shouldReturnMovies_whenGenreMatches() {
+        FilmsEntity film = new FilmsEntity(1L, "Matrix", "Ciencia ficción", new YearsEntity(1L, 1999));
+        FilmsResponseDTO expected = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
+
+        when(filmsRepository.findByGenres_NameContainingIgnoreCase("Ciencia")).thenReturn(List.of(film));
+        when(filmsMapper.toResponseDto(film)).thenReturn(expected);
+
+        List<FilmsResponseDTO> result = filmsService.searchByTitleOrGenre(null, "Ciencia");
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getName()).isEqualTo("Matrix");
+    }
+
+    @Test
+    void searchByTitleOrGenre_shouldThrowResourceNotFoundException_whenNoMoviesMatch() {
+        when(filmsRepository.findByNameContainingIgnoreCase("NoExiste")).thenReturn(List.of());
+        when(filmsRepository.findByGenres_NameContainingIgnoreCase("NoExiste")).thenReturn(List.of());
+
+        assertThatThrownBy(() -> filmsService.searchByTitleOrGenre("NoExiste", "NoExiste"))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("No se encontraron películas con ese criterio");
+    }
 }
