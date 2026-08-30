@@ -79,4 +79,24 @@ class FilmsServiceTest {
             .isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("Película no encontrada con id: 99");
     }
+
+    @Test
+    void save_shouldReturnCreatedMovie_whenRequestIsValid() {
+        ruben.dev.api_movies.dtos.FilmsRequestDTO request = new ruben.dev.api_movies.dtos.FilmsRequestDTO();
+        request.setName("Inception");
+        request.setDescription("Sueños");
+        request.setReleaseYear(2010);
+
+        FilmsEntity savedFilm = new FilmsEntity(2L, "Inception", "Sueños", new YearsEntity(2L, 2010));
+        FilmsResponseDTO expected = new FilmsResponseDTO(2L, "Inception", "Sueños", 2010);
+
+        when(filmsRepository.save(org.mockito.ArgumentMatchers.any(FilmsEntity.class))).thenReturn(savedFilm);
+        when(filmsMapper.toResponseDto(savedFilm)).thenReturn(expected);
+
+        FilmsResponseDTO result = filmsService.save(request);
+
+        assertThat(result.getId()).isEqualTo(2L);
+        assertThat(result.getName()).isEqualTo("Inception");
+        assertThat(result.getReleaseYear()).isEqualTo(2010);
+    }
 }

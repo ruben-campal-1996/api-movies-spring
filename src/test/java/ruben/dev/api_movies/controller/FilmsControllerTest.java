@@ -2,6 +2,7 @@ package ruben.dev.api_movies.controller;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,5 +76,27 @@ class FilmsControllerTest {
         mockMvc.perform(get("/api/v1/movies/99"))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("Película no encontrada con id: 99"));
+    }
+
+    @Test
+    void save_shouldReturnHttp201_whenRequestIsValid() throws Exception {
+        FilmsResponseDTO response = new FilmsResponseDTO(2L, "Inception", "Sueños", 2010);
+        given(filmsService.save(org.mockito.ArgumentMatchers.any())).willReturn(response);
+
+        mockMvc.perform(post("/api/v1/movies")
+                .contentType("application/json")
+                .content("{\"name\":\"Inception\",\"description\":\"Sueños\",\"releaseYear\":2010}"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(2))
+            .andExpect(jsonPath("$.name").value("Inception"))
+            .andExpect(jsonPath("$.releaseYear").value(2010));
+    }
+
+    @Test
+    void save_shouldReturnHttp400_whenRequestIsInvalid() throws Exception {
+        mockMvc.perform(post("/api/v1/movies")
+                .contentType("application/json")
+                .content("{\"name\":\"\",\"description\":\"\",\"releaseYear\":null}"))
+            .andExpect(status().isBadRequest());
     }
 }
