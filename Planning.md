@@ -63,7 +63,8 @@
 - [X] Implementar `GET /` (obtener todas las películas).
 - [X] Implementar `GET /{id}`.
 - [X] Implementar `POST /` (crear, con `@Valid @RequestBody`).
-- [ ] Implementar `PUT /{id}` (o PATCH) y `DELETE /{id}`.
+- [X] Implementar `PUT /{id}` (actualizar, con `@Valid @RequestBody`).
+- [ ] Implementar `DELETE /{id}`.
 - [ ] Implementar `GET /buscar` (por título/género) y crear controladores equivalentes mínimos para Genero/Actor si se necesitan como recursos propios.
 
 ## Fase 9 – Testing
@@ -71,5 +72,6 @@
 - [X] Escribir tests unitarios de `FilmsServiceImpl` mockeando `FilmsRepository` y `FilmsMapper`.
 - [X] Escribir tests de controller con MockMvc para `GET /api/v1/movies` y sus errores.
 - [X] Añadir tests del flujo `POST /api/v1/movies` para caso válido e inválido.
+- [X] Añadir tests del flujo `PUT /api/v1/movies/{id}` para caso válido y no encontrado.
 
-> Estado actual: `./mvnw test -Dtest=FilmsServiceTest,FilmsControllerTest --no-transfer-progress` pasa con 11 tests ejecutados y 0 errores.
+> Estado actual: `./mvnw test -Dtest=FilmsServiceTest,FilmsControllerTest --no-transfer-progress` pasa con 15 tests ejecutados y 0 errores.

@@ -12,4 +12,6 @@ public interface FilmsService {
     FilmsResponseDTO findById(Long id);
 
     FilmsResponseDTO save(FilmsRequestDTO request);
+
+    FilmsResponseDTO update(Long id, FilmsRequestDTO request);
 }

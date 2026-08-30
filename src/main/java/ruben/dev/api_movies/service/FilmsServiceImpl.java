@@ -48,4 +48,17 @@ public class FilmsServiceImpl implements FilmsService {
         FilmsEntity savedFilm = filmsRepository.save(film);
         return filmsMapper.toResponseDto(savedFilm);
     }
+
+    @Override
+    public FilmsResponseDTO update(Long id, FilmsRequestDTO request) {
+        FilmsEntity film = filmsRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Película no encontrada con id: " + id));
+
+        film.setName(request.getName());
+        film.setDescription(request.getDescription());
+        film.setYear(new YearsEntity(film.getYear() != null ? film.getYear().getId_year() : null, request.getReleaseYear()));
+
+        FilmsEntity updatedFilm = filmsRepository.save(film);
+        return filmsMapper.toResponseDto(updatedFilm);
+    }
 }

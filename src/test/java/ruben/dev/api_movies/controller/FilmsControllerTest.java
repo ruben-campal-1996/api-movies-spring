@@ -3,6 +3,7 @@ package ruben.dev.api_movies.controller;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,5 +99,31 @@ class FilmsControllerTest {
                 .contentType("application/json")
                 .content("{\"name\":\"\",\"description\":\"\",\"releaseYear\":null}"))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void update_shouldReturnHttp200_whenRequestIsValid() throws Exception {
+        FilmsResponseDTO response = new FilmsResponseDTO(1L, "Inception", "Sueños", 2010);
+        given(filmsService.update(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any())).willReturn(response);
+
+        mockMvc.perform(put("/api/v1/movies/1")
+                .contentType("application/json")
+                .content("{\"name\":\"Inception\",\"description\":\"Sueños\",\"releaseYear\":2010}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.name").value("Inception"))
+            .andExpect(jsonPath("$.releaseYear").value(2010));
+    }
+
+    @Test
+    void update_shouldReturnHttp404_whenMovieDoesNotExist() throws Exception {
+        given(filmsService.update(org.mockito.ArgumentMatchers.eq(99L), org.mockito.ArgumentMatchers.any()))
+            .willThrow(new ResourceNotFoundException("Película no encontrada con id: 99"));
+
+        mockMvc.perform(put("/api/v1/movies/99")
+                .contentType("application/json")
+                .content("{\"name\":\"Inception\",\"description\":\"Sueños\",\"releaseYear\":2010}"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Película no encontrada con id: 99"));
     }
 }

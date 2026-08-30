@@ -5,7 +5,7 @@
 - Obtener todas las películas: `GET /api/v1/movies`.
 - Obtener una película por ID: `GET /api/v1/movies/{id}`.
 - Añadir una película: `POST /api/v1/movies` con `@Valid` en `FilmsRequestDTO`.
-- Actualizar una película.
+- Actualizar una película: `PUT /api/v1/movies/{id}` con validación y manejo de 404.
 - Eliminar una película.
 - Buscar una película por título o género *(opcional)*.
 
