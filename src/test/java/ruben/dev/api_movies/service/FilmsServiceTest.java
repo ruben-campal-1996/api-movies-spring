@@ -1,5 +1,57 @@
 package ruben.dev.api_movies.service;
 
-public class FilmsServiceTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import ruben.dev.api_movies.dtos.FilmsResponseDTO;
+import ruben.dev.api_movies.entity.FilmsEntity;
+import ruben.dev.api_movies.entity.YearsEntity;
+import ruben.dev.api_movies.exception.ResourceNotFoundException;
+import ruben.dev.api_movies.mappers.FilmsMapper;
+import ruben.dev.api_movies.repository.FilmsRepository;
+
+@ExtendWith(MockitoExtension.class)
+class FilmsServiceTest {
+
+    @Mock
+    private FilmsRepository filmsRepository;
+
+    @Mock
+    private FilmsMapper filmsMapper;
+
+    @InjectMocks
+    private FilmsServiceImpl filmsService;
+
+    @Test
+    void findAll_shouldReturnDtoList_whenRepositoryHasData() {
+        FilmsEntity film = new FilmsEntity(1L, "Matrix", "Ciencia ficción", new YearsEntity(1L, 1999));
+        FilmsResponseDTO expected = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
+
+        when(filmsRepository.findAll()).thenReturn(List.of(film));
+        when(filmsMapper.toResponseDto(film)).thenReturn(expected);
+
+        List<FilmsResponseDTO> result = filmsService.findAll();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getName()).isEqualTo("Matrix");
+        assertThat(result.getFirst().getReleaseYear()).isEqualTo(1999);
+    }
+
+    @Test
+    void findAll_shouldThrowResourceNotFoundException_whenRepositoryIsEmpty() {
+        when(filmsRepository.findAll()).thenReturn(List.of());
+
+        assertThatThrownBy(() -> filmsService.findAll())
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("No se encontraron películas");
+    }
 }
