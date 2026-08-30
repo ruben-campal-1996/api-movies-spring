@@ -7,4 +7,6 @@ import ruben.dev.api_movies.dtos.FilmsResponseDTO;
 public interface FilmsService {
 
     List<FilmsResponseDTO> findAll();
+
+    FilmsResponseDTO findById(Long id);
 }

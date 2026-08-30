@@ -55,4 +55,28 @@ class FilmsServiceTest {
             .isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("No se encontraron películas");
     }
+
+    @Test
+    void findById_shouldReturnFilm_whenIdExists() {
+        FilmsEntity film = new FilmsEntity(1L, "Matrix", "Ciencia ficción", new YearsEntity(1L, 1999));
+        FilmsResponseDTO expected = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
+
+        when(filmsRepository.findById(1L)).thenReturn(java.util.Optional.of(film));
+        when(filmsMapper.toResponseDto(film)).thenReturn(expected);
+
+        FilmsResponseDTO result = filmsService.findById(1L);
+
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getName()).isEqualTo("Matrix");
+        assertThat(result.getReleaseYear()).isEqualTo(1999);
+    }
+
+    @Test
+    void findById_shouldThrowResourceNotFoundException_whenIdDoesNotExist() {
+        when(filmsRepository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> filmsService.findById(99L))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("Película no encontrada con id: 99");
+    }
 }

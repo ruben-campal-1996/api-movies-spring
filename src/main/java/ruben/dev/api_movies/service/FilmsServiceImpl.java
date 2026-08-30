@@ -28,4 +28,11 @@ public class FilmsServiceImpl implements FilmsService {
         return films;
     }
 
+    @Override
+    public FilmsResponseDTO findById(Long id) {
+        return filmsRepository.findById(id)
+            .map(filmsMapper::toResponseDto)
+            .orElseThrow(() -> new ResourceNotFoundException("Película no encontrada con id: " + id));
+    }
+
 }

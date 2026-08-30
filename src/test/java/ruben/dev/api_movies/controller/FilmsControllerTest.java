@@ -55,4 +55,25 @@ class FilmsControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("No se encontraron películas"));
     }
+
+    @Test
+    void findById_shouldReturnHttp200_whenMovieExists() throws Exception {
+        FilmsResponseDTO response = new FilmsResponseDTO(1L, "Matrix", "Ciencia ficción", 1999);
+        given(filmsService.findById(1L)).willReturn(response);
+
+        mockMvc.perform(get("/api/v1/movies/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.name").value("Matrix"))
+            .andExpect(jsonPath("$.releaseYear").value(1999));
+    }
+
+    @Test
+    void findById_shouldReturnHttp404_whenMovieDoesNotExist() throws Exception {
+        given(filmsService.findById(99L)).willThrow(new ResourceNotFoundException("Película no encontrada con id: 99"));
+
+        mockMvc.perform(get("/api/v1/movies/99"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Película no encontrada con id: 99"));
+    }
 }
